@@ -8,13 +8,24 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
 
-public class MemberGUI extends JFrame {
+abstract class BaseGUI extends JFrame {
+    public void initUI() {
+    }
+}
+
+public class MemberGUI extends BaseGUI {
 
     private JTextField idField, nameField, ageField, planField, searchField;
     private JTable table;
     private DefaultTableModel model;
 
     public MemberGUI() {
+        initUI();
+    }
+
+    @Override
+    public void initUI() {
+
         setTitle("Gym Management System");
         setSize(900, 550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,11 +55,9 @@ public class MemberGUI extends JFrame {
         JButton searchBtn = new JButton("Search");
 
         JPanel searchPanel = new JPanel(new BorderLayout());
-
         JPanel searchBox = new JPanel(new BorderLayout());
         searchBox.add(searchField, BorderLayout.CENTER);
         searchBox.add(searchBtn, BorderLayout.WEST);
-
         searchPanel.add(searchBox, BorderLayout.CENTER);
 
         top.add(form, BorderLayout.CENTER);
@@ -66,6 +75,7 @@ public class MemberGUI extends JFrame {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JPanel buttons = new JPanel();
+
         JButton addBtn = new JButton("Add");
         JButton updateBtn = new JButton("Edit");
         JButton deleteBtn = new JButton("Delete");
@@ -93,6 +103,7 @@ public class MemberGUI extends JFrame {
             MemberFileIO.createFileIfNotExists();
         } catch (Exception ignored) {
         }
+
         viewAll();
     }
 
@@ -106,24 +117,29 @@ public class MemberGUI extends JFrame {
             showError("All fields are required!");
             return false;
         }
+
         if (!id.matches("\\d{8}")) {
             showError("ID must be exactly 8 digits!");
             return false;
         }
+
         try {
             Integer.parseInt(age);
         } catch (Exception e) {
             showError("Age must be a number!");
             return false;
         }
+
         if (name.contains(",") || plan.contains(",")) {
             showError("Comma not allowed!");
             return false;
         }
+
         if (checkDuplicate && MemberFileIO.idExists(id)) {
             showError("Duplicate ID!");
             return false;
         }
+
         return true;
     }
 
@@ -131,11 +147,14 @@ public class MemberGUI extends JFrame {
         try {
             if (!validateAll(true))
                 return;
+
             MemberFileIO.addMember(
                     new Member(idField.getText(), nameField.getText(), ageField.getText(), planField.getText()));
+
             showInfo("Added Successfully");
             clear();
             viewAll();
+
         } catch (IOException e) {
             showError(e.getMessage());
         }
@@ -145,10 +164,13 @@ public class MemberGUI extends JFrame {
         try {
             if (!validateAll(false))
                 return;
+
             MemberFileIO.updateMember(
                     new Member(idField.getText(), nameField.getText(), ageField.getText(), planField.getText()));
+
             showInfo("Updated");
             viewAll();
+
         } catch (IOException e) {
             showError(e.getMessage());
         }
@@ -159,9 +181,12 @@ public class MemberGUI extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Delete?");
             if (confirm != JOptionPane.YES_OPTION)
                 return;
+
             MemberFileIO.deleteMember(idField.getText());
+
             showInfo("Deleted");
             viewAll();
+
         } catch (IOException e) {
             showError(e.getMessage());
         }
